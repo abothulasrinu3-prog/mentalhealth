@@ -1,0 +1,67 @@
+services:
+  - type: web
+    name: mentalhealth-api
+    runtime: node
+    plan: free
+    repo: https://github.com/abothulasrinu3-prog/mentalhealth
+    branch: main
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: MONGO_URI
+        sync: false
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: mentalhealth-ml
+          property: hostport
+      - key: CLIENT_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ALLOW_VERCEL_PREVIEW
+        value: true
+      - key: VERCEL_PROJECT_NAME
+        value: mentalhealth
+      - key: EDAMAM_APP_ID
+        sync: false
+      - key: EDAMAM_APP_KEY
+        sync: false
+      - key: FATSECRET_CLIENT_ID
+        sync: false
+      - key: FATSECRET_CLIENT_SECRET
+        sync: false
+      - key: SPOONACULAR_API_KEY
+        sync: false
+      - key: GOOGLE_FIT_CLIENT_ID
+        sync: false
+      - key: GOOGLE_FIT_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_FIT_REDIRECT_URI
+        sync: false
+
+  - type: web
+    name: mentalhealth-ml
+    runtime: python
+    plan: free
+    repo: https://github.com/abothulasrinu3-prog/mentalhealth
+    branch: main
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.7

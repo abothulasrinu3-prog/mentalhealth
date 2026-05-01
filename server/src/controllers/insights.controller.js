@@ -11,7 +11,10 @@ import {
   buildTherapistBrief
 } from '../utils/wellness-insights.js';
 
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5001';
+const normalizeServiceUrl = (value = 'http://localhost:5001') =>
+  /^https?:\/\//i.test(value) ? value : `http://${value}`;
+
+const ML_SERVICE_URL = normalizeServiceUrl(process.env.ML_SERVICE_URL);
 
 const getScenarioPayload = (source = {}) => ({
   sleep_hours: Number(source.sleep_hours ?? source.sleepHours ?? 7),

@@ -157,6 +157,40 @@ ML_TARGETS=http://127.0.0.1:5001,http://127.0.0.1:5003
 LOAD_BALANCER_PORT=8080
 ```
 
+## ☁️ Deployment
+
+### Frontend on Vercel
+
+Deploy the `client` folder as a Vite project:
+
+- Root directory: `client`
+- Install command: `npm install`
+- Build command: `npm run build`
+- Output directory: `dist`
+- Production env vars:
+
+```env
+VITE_API_URL=https://mentalhealth-api.onrender.com/api
+VITE_ML_SERVICE_URL=https://mentalhealth-ml.onrender.com
+```
+
+### Backend and ML on Render
+
+The repository includes `render.yaml` for a Render Blueprint with two web services:
+
+- `mentalhealth-api` from `server`
+- `mentalhealth-ml` from `ml-service`
+
+Required Render secret env vars:
+
+```env
+MONGO_URI=your_mongodb_atlas_connection_string
+CLIENT_URL=your_vercel_production_url
+ALLOWED_ORIGINS=your_vercel_production_url
+```
+
+Optional nutrition and wearable provider keys can be added in Render later.
+
 ## 🔗 API Endpoints
 
 ### Authentication

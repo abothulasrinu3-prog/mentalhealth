@@ -2,6 +2,9 @@ import { SuggestionLog } from '../models/suggestion.model.js';
 import { MoodEntry } from '../models/mood.model.js';
 import axios from 'axios';
 
+const normalizeServiceUrl = (value = 'http://localhost:5001') =>
+  /^https?:\/\//i.test(value) ? value : `http://${value}`;
+
 // @desc    Generate suggestions
 // @route   POST /api/suggestions/generate
 // @access  Private
@@ -250,7 +253,7 @@ const generateRuleBasedSuggestions = (moods) => {
 
 // Get ML prediction from Python service
 const getMLPrediction = async (moods, userId) => {
-  const mlServiceUrl = process.env.ML_SERVICE_URL || 'http://localhost:5001';
+  const mlServiceUrl = normalizeServiceUrl(process.env.ML_SERVICE_URL);
   
   // Prepare features for ML model
   const features = {
