@@ -1,0 +1,78 @@
+{
+  "features": [
+    "sleep_hours",
+    "stress_level",
+    "exercise_minutes",
+    "screen_time",
+    "social_interaction",
+    "mood_score",
+    "water_intake"
+  ],
+  "models": {
+    "random_forest": {
+      "display_name": "Random Forest",
+      "path": "./model/random_forest.pkl",
+      "accuracy": 0.85,
+      "precision": 0.8518,
+      "recall": 0.85,
+      "f1": 0.8492
+    },
+    "logistic_regression": {
+      "display_name": "Logistic Regression",
+      "path": "./model/logistic_regression.pkl",
+      "accuracy": 0.675,
+      "precision": 0.6817,
+      "recall": 0.675,
+      "f1": 0.671
+    },
+    "decision_tree": {
+      "display_name": "Decision Tree",
+      "path": "./model/decision_tree.pkl",
+      "accuracy": 0.8067,
+      "precision": 0.8062,
+      "recall": 0.8067,
+      "f1": 0.8061
+    },
+    "k_nearest_neighbors": {
+      "display_name": "K-Nearest Neighbors",
+      "path": "./model/k_nearest_neighbors.pkl",
+      "accuracy": 0.7133,
+      "precision": 0.7151,
+      "recall": 0.7133,
+      "f1": 0.7083
+    },
+    "naive_bayes": {
+      "display_name": "Naive Bayes",
+      "path": "./model/naive_bayes.pkl",
+      "accuracy": 0.7033,
+      "precision": 0.7599,
+      "recall": 0.7033,
+      "f1": 0.6685
+    },
+    "support_vector_machine": {
+      "display_name": "Support Vector Machine",
+      "path": "./model/support_vector_machine.pkl",
+      "accuracy": 0.78,
+      "precision": 0.7892,
+      "recall": 0.78,
+      "f1": 0.773
+    },
+    "gradient_boosting": {
+      "display_name": "Gradient Boosting",
+      "path": "./model/gradient_boosting.pkl",
+      "accuracy": 0.8417,
+      "precision": 0.8437,
+      "recall": 0.8417,
+      "f1": 0.8402
+    },
+    "extra_trees": {
+      "display_name": "Extra Trees",
+      "path": "./model/extra_trees.pkl",
+      "accuracy": 0.805,
+      "precision": 0.8139,
+      "recall": 0.805,
+      "f1": 0.7976
+    }
+  },
+  "best_model": "random_forest"
+}
