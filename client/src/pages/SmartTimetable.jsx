@@ -122,6 +122,18 @@ const getCategory = (id) => categories.find((category) => category.id === id) ||
 
 const getTodayValue = () => new Date().getDay();
 
+const isSameLocalDay = (value, date = new Date()) => {
+  if (!value) {
+    return false;
+  }
+
+  const logDate = new Date(value);
+  return logDate.toDateString() === date.toDateString();
+};
+
+const isCompletedToday = (item) =>
+  (item.logs || []).some((log) => log.status === 'completed' && isSameLocalDay(log.createdAt));
+
 const isNetworkFailure = (error) =>
   !error.response || error.response?.status === 404 || error.message === 'Network Error';
 
@@ -235,11 +247,16 @@ const SmartTimetable = () => {
     [sortedItems]
   );
 
+  const pendingTodaysItems = useMemo(
+    () => todaysItems.filter((item) => !isCompletedToday(item)),
+    [todaysItems]
+  );
+
   const nextItem = useMemo(() => {
     const now = new Date();
     const current = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    return todaysItems.find((item) => item.time >= current) || todaysItems[0];
-  }, [todaysItems]);
+    return pendingTodaysItems.find((item) => item.time >= current) || pendingTodaysItems[0];
+  }, [pendingTodaysItems]);
 
   const saveLocal = (nextItems) => {
     setItems(nextItems);
