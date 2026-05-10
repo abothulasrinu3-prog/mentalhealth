@@ -30,6 +30,7 @@ const translations = {
       journal: 'Journal',
       aiInsights: 'AI Insights',
       careIntelligence: 'Care Intelligence',
+      smartTimetable: 'Smart Timetable',
       programs: 'Programs',
       community: 'Community',
       findTherapist: 'Find Therapist',

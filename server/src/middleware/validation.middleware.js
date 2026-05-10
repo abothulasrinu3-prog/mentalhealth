@@ -36,3 +36,41 @@ export const journalValidation = [
   body('title').trim().notEmpty().withMessage('Title is required'),
   body('content').trim().notEmpty().withMessage('Content is required')
 ];
+
+export const timetableValidation = [
+  body('title').trim().notEmpty().withMessage('Activity title is required'),
+  body('category')
+    .optional()
+    .isIn([
+      'study',
+      'meditation',
+      'workout',
+      'sleep',
+      'medication',
+      'water',
+      'mood',
+      'therapy',
+      'affirmation',
+      'breathing',
+      'journal',
+      'other'
+    ])
+    .withMessage('Invalid activity category'),
+  body('time')
+    .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+    .withMessage('Time must be in HH:mm format'),
+  body('endTime')
+    .optional({ checkFalsy: true })
+    .matches(/^([01]\d|2[0-3]):[0-5]\d$/)
+    .withMessage('End time must be in HH:mm format'),
+  body('daysOfWeek')
+    .optional()
+    .isArray({ min: 1 })
+    .withMessage('At least one reminder day is required'),
+  body('daysOfWeek.*')
+    .optional()
+    .isInt({ min: 0, max: 6 })
+    .withMessage('Reminder days must be from 0 to 6'),
+  body('note').optional().isLength({ max: 500 }).withMessage('Note cannot exceed 500 characters'),
+  body('workingProblem').optional().isLength({ max: 500 }).withMessage('Working problem cannot exceed 500 characters')
+];

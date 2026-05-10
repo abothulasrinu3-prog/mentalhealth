@@ -1,0 +1,8 @@
+{
+  "appId": "com.mindcare.ai",
+  "appName": "MindCare AI",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

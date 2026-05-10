@@ -3,8 +3,12 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Smile, Save, ArrowLeft, Loader2 } from 'lucide-react';
 import PageExperience3D from '../components/PageExperience3D';
+import { saveLocalMood } from '../utils/localMoodStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const isNetworkFailure = (error) =>
+  !error.response || error.response?.status === 404 || error.message === 'Network Error';
 
 const moodOptions = [
   { label: 'very-happy', emoji: '😄', name: 'Very Happy', color: 'bg-emerald-500' },
@@ -62,7 +66,13 @@ const MoodTracker = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Error saving mood:', error);
-      alert('Failed to save mood entry');
+      if (isNetworkFailure(error)) {
+        saveLocalMood(formData);
+        navigate('/dashboard');
+        return;
+      }
+
+      alert(error.response?.data?.message || 'Failed to save mood entry');
     } finally {
       setLoading(false);
     }

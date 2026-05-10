@@ -12,6 +12,7 @@ import {
   Tooltip, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
 import PageExperience3D from '../components/PageExperience3D';
+import { getLocalMoodHistory, getLocalMoodStats, getLocalTodayMood } from '../utils/localMoodStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -105,6 +106,12 @@ const Dashboard = () => {
       setMoodPrediction(prediction);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      const localHistory = getLocalMoodHistory(7);
+      setStats(getLocalMoodStats(7));
+      setTodayMood(getLocalTodayMood());
+      setMoodHistory(localHistory);
+      setSuggestions([]);
+      setMoodPrediction(predictMood(localHistory.slice().reverse()));
     } finally {
       setLoading(false);
     }
@@ -149,7 +156,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="min-w-0 space-y-6 sm:space-y-8 animate-fade-in">
       <PageExperience3D
         variant="dashboard"
         eyebrow="Today at a glance"
@@ -158,14 +165,14 @@ const Dashboard = () => {
         metrics={['Mood forecast', 'Quick actions', 'AI suggestions']}
       />
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
+          <h1 className="break-words text-2xl font-bold sm:text-3xl">Welcome back, {user?.name?.split(' ')[0]}! 👋</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Here's your mental wellness overview
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           {user?.streak?.current > 0 && (
             <div className="flex items-center gap-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/20 text-orange-700 rounded-lg">
               <Flame className="w-5 h-5" />
@@ -183,7 +190,7 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex min-w-0 flex-col gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Brain className="w-5 h-5 text-indigo-600" />
               Tomorrow's Mood Prediction
@@ -193,7 +200,7 @@ const Dashboard = () => {
             </span>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid min-w-0 gap-6 md:grid-cols-2">
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-4xl">{getMoodEmoji(moodPrediction.moodLabel)}</span>
@@ -274,8 +281,8 @@ const Dashboard = () => {
       )}
 
       {/* Quick Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="glass-card p-6 card-hover">
+      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="glass-card min-w-0 p-4 sm:p-6 card-hover">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/20 flex items-center justify-center">
               <Smile className="w-5 h-5 text-primary-600" />
@@ -294,7 +301,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="glass-card p-6 card-hover">
+        <div className="glass-card min-w-0 p-4 sm:p-6 card-hover">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/20 flex items-center justify-center">
               <Activity className="w-5 h-5 text-violet-600" />
@@ -306,7 +313,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="glass-card p-6 card-hover">
+        <div className="glass-card min-w-0 p-4 sm:p-6 card-hover">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center">
               <Moon className="w-5 h-5 text-amber-600" />
@@ -318,7 +325,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="glass-card p-6 card-hover">
+        <div className="glass-card min-w-0 p-4 sm:p-6 card-hover">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-lg bg-cyan-100 dark:bg-cyan-900/20 flex items-center justify-center">
               <Droplets className="w-5 h-5 text-cyan-600" />
@@ -332,10 +339,10 @@ const Dashboard = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-3">
         {/* Mood Chart */}
-        <div className="lg:col-span-2 glass-card p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="min-w-0 lg:col-span-2 glass-card p-4 sm:p-6">
+          <div className="flex min-w-0 flex-col gap-2 mb-6 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-primary-500" />
               Mood & Stress Trends
@@ -344,7 +351,7 @@ const Dashboard = () => {
           </div>
           
           {chartData.length > 0 ? (
-            <div className="h-64">
+            <div className="h-64 min-w-0 overflow-hidden">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -374,8 +381,8 @@ const Dashboard = () => {
         </div>
 
         {/* AI Suggestions */}
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="glass-card min-w-0 p-4 sm:p-6">
+          <div className="flex min-w-0 flex-col gap-2 mb-6 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-secondary-500" />
               AI Suggestions
@@ -408,8 +415,8 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-        <Link to="/mood-tracker" className="glass-card p-6 card-hover flex items-center gap-4">
+      <div className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Link to="/mood-tracker" className="glass-card min-w-0 p-4 sm:p-6 card-hover flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
             <Smile className="w-6 h-6 text-white" />
           </div>
@@ -419,7 +426,7 @@ const Dashboard = () => {
           </div>
         </Link>
 
-        <Link to="/journal" className="glass-card p-6 card-hover flex items-center gap-4">
+        <Link to="/journal" className="glass-card min-w-0 p-4 sm:p-6 card-hover flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
             <BookHeart className="w-6 h-6 text-white" />
           </div>
@@ -429,7 +436,7 @@ const Dashboard = () => {
           </div>
         </Link>
 
-        <Link to="/analytics" className="glass-card p-6 card-hover flex items-center gap-4">
+        <Link to="/analytics" className="glass-card min-w-0 p-4 sm:p-6 card-hover flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
             <Calendar className="w-6 h-6 text-white" />
           </div>
@@ -439,7 +446,7 @@ const Dashboard = () => {
           </div>
         </Link>
 
-        <Link to="/ai-insights" className="glass-card p-6 card-hover flex items-center gap-4">
+        <Link to="/ai-insights" className="glass-card min-w-0 p-4 sm:p-6 card-hover flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 flex items-center justify-center">
             <Brain className="w-6 h-6 text-white" />
           </div>
@@ -463,3 +470,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

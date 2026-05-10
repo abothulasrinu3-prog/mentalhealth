@@ -1,0 +1,9 @@
+{
+  "name": "mindcare-ai-complete",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "powershell -ExecutionPolicy Bypass -File scripts/start-complete.ps1"
+  }
+}

@@ -14,10 +14,14 @@ import adminRoutes from './routes/admin.routes.js';
 import insightsRoutes from './routes/insights.routes.js';
 import genaiRoutes from './routes/genai.routes.js';
 import integrationsRoutes from './routes/integrations.routes.js';
+import timetableRoutes from './routes/timetable.routes.js';
+import { startReminderScheduler } from './utils/reminder-scheduler.js';
 
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1);
+
 const parseEnvList = (value = '') =>
   value
     .split(',')
@@ -93,8 +97,14 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection
-connectDB();
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -107,6 +117,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/insights', insightsRoutes);
 app.use('/api/genai', genaiRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/timetable', timetableRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -123,8 +134,12 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    startReminderScheduler();
+  });
+}
 
 export default app;

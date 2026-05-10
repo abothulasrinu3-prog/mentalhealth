@@ -42,6 +42,7 @@ const MindfulnessGames = lazy(() => import('./pages/MindfulnessGames'));
 const AIInsights = lazy(() => import('./pages/AIInsights'));
 const CareIntelligence = lazy(() => import('./pages/CareIntelligence'));
 const BiometricLogin = lazy(() => import('./pages/BiometricLogin'));
+const SmartTimetable = lazy(() => import('./pages/SmartTimetable'));
 
 const RouteLoader = () => {
   const { t } = useLanguage();
@@ -77,6 +78,7 @@ function App() {
                     <Route path="/analytics" element={<Analytics />} />
                     <Route path="/ai-insights" element={<AIInsights />} />
                     <Route path="/care-intelligence" element={<CareIntelligence />} />
+                    <Route path="/smart-timetable" element={<SmartTimetable />} />
                     <Route path="/programs" element={<Programs />} />
                     <Route path="/suggestions" element={<Suggestions />} />
                     <Route path="/weekly-review" element={<WeeklyReview />} />

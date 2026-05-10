@@ -11,15 +11,15 @@ const Layout = () => {
   return (
     <div className="app-shell-bg min-h-screen">
       <Navbar />
-      <div className="flex">
+      <div className="flex min-w-0">
         <Sidebar />
-        <main className="wellness-page-shell flex-1 lg:ml-64 min-h-screen pt-16">
+        <main className="wellness-page-shell min-w-0 flex-1 overflow-x-hidden lg:ml-64 min-h-screen pt-16 pb-20 lg:pb-0">
           <div className="page-ambient-3d" aria-hidden="true">
             <span />
             <span />
             <span />
           </div>
-          <div className="relative z-10 p-4 lg:p-8">
+          <div className="relative z-10 min-w-0 p-3 sm:p-4 lg:p-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}

@@ -346,35 +346,20 @@ const AIInsights = () => {
         <div className="glass-card p-6 xl:col-span-1">
           <h2 className="text-xl font-semibold flex items-center gap-2 mb-5">
             <Cpu className="w-5 h-5 text-cyan-500" />
-            Model layer
+            AI assessment
           </h2>
 
           <div className="space-y-4">
             <div className="rounded-2xl bg-gray-50 dark:bg-gray-800/80 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">Ensemble prediction</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Wellness risk</p>
               <div className="flex items-center justify-between mt-2">
                 <p className="text-xl font-semibold">{formatLabel(report?.ml?.ensemble?.label || 'low risk')}</p>
                 <span className="text-sm text-gray-500">{report?.ml?.ensemble?.confidence || 0}% confidence</span>
               </div>
             </div>
 
-            <div className="rounded-2xl bg-gray-50 dark:bg-gray-800/80 p-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">Available models</p>
-              <div className="flex flex-wrap gap-2">
-                {(report?.ml?.availableModels || []).length > 0 ? (
-                  report.ml.availableModels.map((modelName) => (
-                    <span key={modelName} className="px-3 py-2 rounded-full bg-white dark:bg-gray-900 text-sm border border-gray-200 dark:border-gray-700">
-                      {formatLabel(modelName)}
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-sm text-gray-500">Using heuristic fallback</span>
-                )}
-              </div>
-            </div>
-
             <div>
-              <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Model-backed next steps</p>
+              <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3">Suggested next steps</p>
               <div className="space-y-2">
                 {(report?.ml?.suggestions || []).map((suggestion, index) => (
                   <div key={`${suggestion.category}-${index}`} className="rounded-xl border border-gray-200 dark:border-gray-700 p-3">

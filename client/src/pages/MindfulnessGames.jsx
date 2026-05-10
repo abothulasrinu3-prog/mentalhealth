@@ -18,6 +18,14 @@ const MindfulnessGames = () => {
   const [selectedTarget, setSelectedTarget] = useState(null);
   const [gratitudeItems, setGratitudeItems] = useState([]);
   const [currentGratitude, setCurrentGratitude] = useState('');
+  const [groundingChecks, setGroundingChecks] = useState({});
+  const [memoryCards, setMemoryCards] = useState([]);
+  const [flippedCards, setFlippedCards] = useState([]);
+  const [matchedCards, setMatchedCards] = useState([]);
+  const [memoryMoves, setMemoryMoves] = useState(0);
+  const [worryIndex, setWorryIndex] = useState(0);
+  const [worryAnswers, setWorryAnswers] = useState([]);
+  const [kindnessChecks, setKindnessChecks] = useState({});
 
   const games = [
     {
@@ -54,11 +62,35 @@ const MindfulnessGames = () => {
     },
     {
       id: 'memory',
-      name: 'Memory Mindfulness',
-      description: 'Mindful memory training exercises',
+      name: 'Calm Memory Match',
+      description: 'Match calming symbols with slow attention',
       icon: Zap,
       color: '#10b981',
       difficulty: 'intermediate'
+    },
+    {
+      id: 'grounding',
+      name: '5 Senses Grounding',
+      description: 'A quick sensory reset for anxious moments',
+      icon: Sparkles,
+      color: '#14b8a6',
+      difficulty: 'beginner'
+    },
+    {
+      id: 'worry-sorter',
+      name: 'Worry Sorter',
+      description: 'Sort thoughts into action or release',
+      icon: Target,
+      color: '#6366f1',
+      difficulty: 'all ages'
+    },
+    {
+      id: 'kindness-quest',
+      name: 'Kindness Quest',
+      description: 'Small compassion missions for self and others',
+      icon: Heart,
+      color: '#ec4899',
+      difficulty: 'all ages'
     }
   ];
 
@@ -114,6 +146,18 @@ const MindfulnessGames = () => {
     setFocusTargets(targets);
   }, []);
 
+  const initializeMemoryGame = () => {
+    const symbols = ['Breathe', 'Cloud', 'Leaf', 'Moon', 'Wave', 'Light'];
+    const cards = [...symbols, ...symbols]
+      .map((symbol, index) => ({ id: `${symbol}-${index}`, symbol }))
+      .sort(() => Math.random() - 0.5);
+
+    setMemoryCards(cards);
+    setFlippedCards([]);
+    setMatchedCards([]);
+    setMemoryMoves(0);
+  };
+
   const startGame = (gameId) => {
     setSelectedGame(gameId);
     setGameState('playing');
@@ -126,6 +170,15 @@ const MindfulnessGames = () => {
       initializeFocusGame();
     } else if (gameId === 'meditation') {
       setMeditationTime(0);
+    } else if (gameId === 'memory') {
+      initializeMemoryGame();
+    } else if (gameId === 'grounding') {
+      setGroundingChecks({});
+    } else if (gameId === 'worry-sorter') {
+      setWorryIndex(0);
+      setWorryAnswers([]);
+    } else if (gameId === 'kindness-quest') {
+      setKindnessChecks({});
     }
   };
 
@@ -150,6 +203,14 @@ const MindfulnessGames = () => {
     setMeditationTime(0);
     setFocusTargets([]);
     setSelectedTarget(null);
+    setGroundingChecks({});
+    setMemoryCards([]);
+    setFlippedCards([]);
+    setMatchedCards([]);
+    setMemoryMoves(0);
+    setWorryIndex(0);
+    setWorryAnswers([]);
+    setKindnessChecks({});
   };
 
   const handleTargetClick = (target) => {
@@ -171,6 +232,110 @@ const MindfulnessGames = () => {
       setCurrentGratitude('');
       setScore(prev => prev + 5);
     }
+  };
+
+  const handleMemoryCardClick = (card) => {
+    if (
+      flippedCards.length === 2 ||
+      flippedCards.some((item) => item.id === card.id) ||
+      matchedCards.includes(card.symbol)
+    ) {
+      return;
+    }
+
+    setFlippedCards((prev) => [...prev, card]);
+  };
+
+  useEffect(() => {
+    if (flippedCards.length !== 2) return;
+
+    setMemoryMoves((prev) => prev + 1);
+    const [first, second] = flippedCards;
+
+    if (first.symbol === second.symbol) {
+      setMatchedCards((prev) => [...prev, first.symbol]);
+      setScore((prev) => prev + 15);
+      setFlippedCards([]);
+      return;
+    }
+
+    const timeout = setTimeout(() => setFlippedCards([]), 850);
+    return () => clearTimeout(timeout);
+  }, [flippedCards]);
+
+  useEffect(() => {
+    if (selectedGame === 'memory' && memoryCards.length > 0 && matchedCards.length === 6) {
+      endGame();
+    }
+  }, [matchedCards, memoryCards.length, selectedGame]);
+
+  const toggleGroundingCheck = (key) => {
+    setGroundingChecks((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      setScore(Object.values(next).filter(Boolean).length * 10);
+      return next;
+    });
+  };
+
+  const worryPrompts = [
+    {
+      text: 'I have a test or meeting tomorrow.',
+      answer: 'act',
+      action: 'Prepare one small step, then rest.'
+    },
+    {
+      text: 'Someone may not like what I said.',
+      answer: 'release',
+      action: 'If needed, repair kindly. Release mind-reading.'
+    },
+    {
+      text: 'My room or desk feels messy.',
+      answer: 'act',
+      action: 'Set a five-minute timer and clear one surface.'
+    },
+    {
+      text: 'I keep replaying an old mistake.',
+      answer: 'release',
+      action: 'Take the lesson, then come back to now.'
+    },
+    {
+      text: 'I forgot to drink enough water today.',
+      answer: 'act',
+      action: 'Drink one glass and place water nearby.'
+    }
+  ];
+
+  const kindnessQuests = [
+    { key: 'self', label: 'Say one kind sentence to yourself', hint: 'Try: I am learning, and I can begin again.' },
+    { key: 'body', label: 'Relax your shoulders for three breaths', hint: 'Let your jaw and hands soften too.' },
+    { key: 'thanks', label: 'Thank someone or remember someone helpful', hint: 'A message, a thought, or a quiet thank-you counts.' },
+    { key: 'space', label: 'Make one tiny part of your space calmer', hint: 'Move one item, close one tab, or clear one cup.' },
+    { key: 'future', label: 'Do one small favor for future you', hint: 'Set out water, write a reminder, or prepare the next step.' }
+  ];
+
+  const answerWorry = (choice) => {
+    const prompt = worryPrompts[worryIndex];
+    const isCorrect = choice === prompt.answer;
+    const nextAnswers = [...worryAnswers, { ...prompt, choice, isCorrect }];
+
+    setWorryAnswers(nextAnswers);
+    setScore((prev) => prev + (isCorrect ? 12 : 4));
+
+    if (worryIndex >= worryPrompts.length - 1) {
+      endGame();
+      return;
+    }
+
+    setWorryIndex((prev) => prev + 1);
+  };
+
+  const toggleKindnessQuest = (key) => {
+    setKindnessChecks((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      const doneCount = Object.values(next).filter(Boolean).length;
+      setScore(doneCount * 10);
+      return next;
+    });
   };
 
   const formatTime = (seconds) => {
@@ -432,6 +597,250 @@ const MindfulnessGames = () => {
     </div>
   );
 
+  const groundingSteps = [
+    { key: 'see', count: 5, label: 'things you can see', prompt: 'Look around and name them slowly.' },
+    { key: 'feel', count: 4, label: 'things you can feel', prompt: 'Notice texture, pressure, or temperature.' },
+    { key: 'hear', count: 3, label: 'sounds you can hear', prompt: 'Let each sound arrive without chasing it.' },
+    { key: 'smell', count: 2, label: 'things you can smell', prompt: 'If nothing is clear, notice the air.' },
+    { key: 'taste', count: 1, label: 'thing you can taste', prompt: 'Notice one small detail in your mouth.' }
+  ];
+
+  const renderGroundingGame = () => {
+    const completed = Object.values(groundingChecks).filter(Boolean).length;
+
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8 text-center">
+          <h3 className="text-2xl font-bold mb-2">5 Senses Grounding</h3>
+          <p className="text-gray-600 dark:text-gray-400">Move through each sense and tap it when you complete it.</p>
+        </div>
+
+        <div className="mb-6 h-3 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+          <motion.div
+            className="h-full bg-teal-500"
+            animate={{ width: `${(completed / groundingSteps.length) * 100}%` }}
+          />
+        </div>
+
+        <div className="grid gap-3">
+          {groundingSteps.map((step) => (
+            <motion.button
+              key={step.key}
+              type="button"
+              onClick={() => toggleGroundingCheck(step.key)}
+              className={`rounded-2xl border p-4 text-left transition ${
+                groundingChecks[step.key]
+                  ? 'border-teal-400 bg-teal-50 dark:border-teal-500 dark:bg-teal-900/20'
+                  : 'border-gray-200 bg-white/70 dark:border-gray-700 dark:bg-gray-800/70'
+              }`}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-semibold">{step.count} {step.label}</p>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{step.prompt}</p>
+                </div>
+                <span className="text-sm font-semibold text-teal-600 dark:text-teal-300">
+                  {groundingChecks[step.key] ? 'Done' : 'Tap'}
+                </span>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+
+        <div className="mt-6 flex justify-between items-center">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {completed}/{groundingSteps.length} complete
+          </div>
+          <motion.button
+            onClick={completed === groundingSteps.length ? endGame : resetGame}
+            className="btn-primary flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {completed === groundingSteps.length ? <Award className="w-5 h-5" /> : <RotateCcw className="w-5 h-5" />}
+            {completed === groundingSteps.length ? 'Finish' : 'Reset'}
+          </motion.button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderMemoryGame = () => (
+    <div className="max-w-3xl mx-auto">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h3 className="text-2xl font-bold mb-2">Calm Memory Match</h3>
+          <p className="text-gray-600 dark:text-gray-400">Flip two cards at a time. Pause and breathe before each choice.</p>
+        </div>
+        <div className="flex gap-4 text-center">
+          <div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Matches</div>
+            <div className="text-2xl font-bold text-emerald-600">{matchedCards.length}/6</div>
+          </div>
+          <div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Moves</div>
+            <div className="text-2xl font-bold text-cyan-600">{memoryMoves}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+        {memoryCards.map((card) => {
+          const isOpen = flippedCards.some((item) => item.id === card.id) || matchedCards.includes(card.symbol);
+
+          return (
+            <motion.button
+              key={card.id}
+              type="button"
+              onClick={() => handleMemoryCardClick(card)}
+              className={`aspect-[4/3] rounded-2xl border text-sm font-semibold shadow-sm transition ${
+                isOpen
+                  ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-500 dark:bg-emerald-900/20 dark:text-emerald-200'
+                  : 'border-gray-200 bg-white text-gray-400 dark:border-gray-700 dark:bg-gray-800'
+              }`}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+            >
+              {isOpen ? card.symbol : 'Breathe'}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 flex justify-center">
+        <motion.button
+          onClick={() => {
+            setScore(0);
+            initializeMemoryGame();
+          }}
+          className="btn-secondary flex items-center gap-2"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <RotateCcw className="w-5 h-5" />
+          New Layout
+        </motion.button>
+      </div>
+    </div>
+  );
+
+  const renderWorrySorter = () => {
+    const prompt = worryPrompts[worryIndex];
+
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8 text-center">
+          <h3 className="text-2xl font-bold mb-2">Worry Sorter</h3>
+          <p className="text-gray-600 dark:text-gray-400">Choose whether each thought needs a small action or a gentle release.</p>
+        </div>
+
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-300">
+            Card {worryIndex + 1} of {worryPrompts.length}
+          </span>
+          <span className="text-sm text-gray-500">Score {score}</span>
+        </div>
+
+        <motion.div
+          key={prompt.text}
+          className="mb-6 rounded-3xl border border-indigo-100 bg-indigo-50 p-6 text-center dark:border-indigo-800 dark:bg-indigo-900/20"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <p className="text-xl font-semibold text-indigo-950 dark:text-indigo-100">{prompt.text}</p>
+        </motion.div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <motion.button
+            type="button"
+            onClick={() => answerWorry('act')}
+            className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-left dark:border-emerald-700 dark:bg-emerald-900/20"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <p className="font-semibold text-emerald-700 dark:text-emerald-300">I can act</p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Pick one small next step.</p>
+          </motion.button>
+          <motion.button
+            type="button"
+            onClick={() => answerWorry('release')}
+            className="rounded-2xl border border-sky-200 bg-sky-50 p-5 text-left dark:border-sky-700 dark:bg-sky-900/20"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <p className="font-semibold text-sky-700 dark:text-sky-300">I can release</p>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Notice it, breathe, and let it pass.</p>
+          </motion.button>
+        </div>
+
+        {worryAnswers.length > 0 && (
+          <div className="mt-6 rounded-2xl bg-white/70 p-4 dark:bg-gray-800/70">
+            <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">Last reflection</p>
+            <p className="mt-1 text-sm">{worryAnswers[worryAnswers.length - 1].action}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderKindnessQuest = () => {
+    const completed = Object.values(kindnessChecks).filter(Boolean).length;
+
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8 text-center">
+          <h3 className="text-2xl font-bold mb-2">Kindness Quest</h3>
+          <p className="text-gray-600 dark:text-gray-400">Complete small compassion missions at your own pace.</p>
+        </div>
+
+        <div className="mb-6 grid gap-3">
+          {kindnessQuests.map((quest) => (
+            <motion.button
+              key={quest.key}
+              type="button"
+              onClick={() => toggleKindnessQuest(quest.key)}
+              className={`rounded-2xl border p-4 text-left transition ${
+                kindnessChecks[quest.key]
+                  ? 'border-pink-300 bg-pink-50 dark:border-pink-500 dark:bg-pink-900/20'
+                  : 'border-gray-200 bg-white/70 dark:border-gray-700 dark:bg-gray-800/70'
+              }`}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-semibold">{quest.label}</p>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{quest.hint}</p>
+                </div>
+                <span className="text-sm font-semibold text-pink-600 dark:text-pink-300">
+                  {kindnessChecks[quest.key] ? 'Done' : 'Try'}
+                </span>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Quest progress</p>
+            <p className="text-2xl font-bold text-pink-600">{completed}/{kindnessQuests.length}</p>
+          </div>
+          <motion.button
+            onClick={completed === kindnessQuests.length ? endGame : resetGame}
+            className="btn-primary flex items-center gap-2"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {completed === kindnessQuests.length ? <Award className="w-5 h-5" /> : <RotateCcw className="w-5 h-5" />}
+            {completed === kindnessQuests.length ? 'Finish Quest' : 'Reset'}
+          </motion.button>
+        </div>
+      </div>
+    );
+  };
+
   const renderGame = () => {
     switch (selectedGame) {
       case 'breathing':
@@ -442,6 +851,14 @@ const MindfulnessGames = () => {
         return renderFocusGame();
       case 'gratitude':
         return renderGratitudeJournal();
+      case 'memory':
+        return renderMemoryGame();
+      case 'grounding':
+        return renderGroundingGame();
+      case 'worry-sorter':
+        return renderWorrySorter();
+      case 'kindness-quest':
+        return renderKindnessQuest();
       default:
         return null;
     }
