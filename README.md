@@ -159,6 +159,16 @@ LOAD_BALANCER_PORT=8080
 
 ## ☁️ Deployment
 
+### Live Deployment
+
+- Frontend: `https://client-black-gamma.vercel.app`
+- Backend health: `https://server-sepia-two-58.vercel.app/health`
+- Backend API: `https://server-sepia-two-58.vercel.app/api`
+- ML service: `https://ml-service-nine.vercel.app`
+- GitHub Actions runs: `https://github.com/abothulasrinu3-prog/mentalhealth/actions`
+
+Timetable reminder emails are triggered by `.github/workflows/timetable-reminders.yml`, which calls the backend reminder endpoint every 5 minutes with the `CRON_SECRET` repository secret.
+
 ### Frontend on Vercel
 
 Deploy the `client` folder as a Vite project:
@@ -170,8 +180,8 @@ Deploy the `client` folder as a Vite project:
 - Production env vars:
 
 ```env
-VITE_API_URL=https://mentalhealth-api.onrender.com/api
-VITE_ML_SERVICE_URL=https://mentalhealth-ml.onrender.com
+VITE_API_URL=https://server-sepia-two-58.vercel.app/api
+VITE_ML_SERVICE_URL=https://ml-service-nine.vercel.app
 ```
 
 ### Backend and ML on Render
@@ -256,10 +266,17 @@ Models predict mental wellness risk levels (low/medium/high) based on:
 PORT=5000
 MONGO_URI=mongodb://localhost:27017/mindcare_ai
 JWT_SECRET=your_secret_key
-JWT_EXPIRE=7d
+JWT_EXPIRE=365d
+CRON_SECRET=your_private_cron_secret
 ML_SERVICE_URL=http://localhost:5001
 NODE_ENV=development
 CLIENT_URL=http://localhost:5173
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_gmail_app_password
+EMAIL_FROM="MindCare AI <your_email@gmail.com>"
 EDAMAM_APP_ID=
 EDAMAM_APP_KEY=
 FATSECRET_CLIENT_ID=
