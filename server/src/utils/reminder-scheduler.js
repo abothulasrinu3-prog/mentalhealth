@@ -8,7 +8,7 @@ let task;
 let isRunning = false;
 
 const getPartsForTimezone = (date, timeZone) => {
-  const safeTimeZone = timeZone || 'Asia/Andhra Pradesh';
+  const safeTimeZone = timeZone || 'Asia/Kolkata';
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: safeTimeZone,
     hour12: false,
@@ -47,6 +47,38 @@ const appendLog = (item, log) => {
   item.logs = [log, ...item.logs].slice(0, 60);
 };
 
+const parseTimeToMinutes = (time = '') => {
+  const [hour, minute] = time.split(':').map(Number);
+
+  if (!Number.isInteger(hour) || !Number.isInteger(minute)) {
+    return null;
+  }
+
+  return hour * 60 + minute;
+};
+
+const getReminderLookbackMinutes = () => {
+  const value = Number(process.env.REMINDER_LOOKBACK_MINUTES || 2);
+
+  if (!Number.isFinite(value) || value < 0) {
+    return 2;
+  }
+
+  return Math.min(Math.floor(value), 60);
+};
+
+const isDueNow = ({ currentTime, scheduledTime, lookbackMinutes }) => {
+  const currentMinutes = parseTimeToMinutes(currentTime);
+  const scheduledMinutes = parseTimeToMinutes(scheduledTime);
+
+  if (currentMinutes === null || scheduledMinutes === null) {
+    return false;
+  }
+
+  const elapsedMinutes = currentMinutes - scheduledMinutes;
+  return elapsedMinutes >= 0 && elapsedMinutes <= lookbackMinutes;
+};
+
 export const runReminderCheck = async () => {
   if (isRunning) {
     return;
@@ -61,13 +93,18 @@ export const runReminderCheck = async () => {
       active: true,
       reminderEnabled: true
     }).lean(false);
+    const lookbackMinutes = getReminderLookbackMinutes();
 
     for (const item of activeItems) {
       const parts = getSafePartsForTimezone(now, item.timezone || 'Asia/Kolkata');
       const sentKey = `${parts.dateKey}:${item.time}`;
 
       if (
-        parts.time !== item.time ||
+        !isDueNow({
+          currentTime: parts.time,
+          scheduledTime: item.time,
+          lookbackMinutes
+        }) ||
         item.lastReminderSentKey === sentKey ||
         !item.daysOfWeek.includes(parts.weekday)
       ) {

@@ -139,6 +139,20 @@ const isNetworkFailure = (error) =>
 
 const isUnauthorized = (error) => error.response?.status === 401;
 
+const getStoredToken = () => localStorage.getItem('token');
+
+const applyStoredAuthHeader = () => {
+  const token = getStoredToken();
+
+  if (token) {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    return true;
+  }
+
+  delete axios.defaults.headers.common['Authorization'];
+  return false;
+};
+
 const SmartTimetable = () => {
   const { user, refreshUser } = useAuth();
   const [items, setItems] = useState([]);
@@ -164,23 +178,44 @@ const SmartTimetable = () => {
   });
 
   const reconnectBackendSession = async () => {
-    if (!refreshUser) {
-      return false;
+    try {
+      applyStoredAuthHeader();
+      const emailStatusResponse = await axios.get(`${API_URL}/timetable/email-status`);
+      setEmailStatus(emailStatusResponse.data.data);
+      setApiAvailable(true);
+      return true;
+    } catch (firstError) {
+      if (!isUnauthorized(firstError) || !refreshUser) {
+        setApiAvailable(false);
+        return false;
+      }
     }
 
     const refreshed = await refreshUser();
     if (!refreshed?.backend) {
+      setApiAvailable(false);
       return false;
     }
 
     try {
+      applyStoredAuthHeader();
       const emailStatusResponse = await axios.get(`${API_URL}/timetable/email-status`);
       setEmailStatus(emailStatusResponse.data.data);
       setApiAvailable(true);
       return true;
     } catch {
+      setApiAvailable(false);
       return false;
     }
+  };
+
+  const ensureBackendSession = async () => {
+    if (apiAvailable) {
+      applyStoredAuthHeader();
+      return true;
+    }
+
+    return reconnectBackendSession();
   };
 
   const loadTimetable = async (allowRetry = true) => {
@@ -322,10 +357,7 @@ const SmartTimetable = () => {
       return;
     }
 
-    let canUseApi = apiAvailable;
-    if (!canUseApi) {
-      canUseApi = await reconnectBackendSession();
-    }
+    const canUseApi = await ensureBackendSession();
 
     if (canUseApi) {
       try {
@@ -389,10 +421,7 @@ const SmartTimetable = () => {
   };
 
   const deleteItem = async (id) => {
-    let canUseApi = apiAvailable;
-    if (!canUseApi) {
-      canUseApi = await reconnectBackendSession();
-    }
+    const canUseApi = await ensureBackendSession();
 
     if (canUseApi) {
       try {
@@ -418,10 +447,7 @@ const SmartTimetable = () => {
   };
 
   const logStatus = async (id, status) => {
-    let canUseApi = apiAvailable;
-    if (!canUseApi) {
-      canUseApi = await reconnectBackendSession();
-    }
+    const canUseApi = await ensureBackendSession();
 
     if (canUseApi) {
       try {
@@ -455,18 +481,25 @@ const SmartTimetable = () => {
   };
 
   const emailTimetable = async () => {
-    let canUseApi = apiAvailable;
-    if (!canUseApi) {
-      canUseApi = await reconnectBackendSession();
+    if (!getStoredToken()) {
+      setMessage('Please sign in to email your timetable.');
+      return;
     }
 
+    const canUseApi = await reconnectBackendSession();
+
     if (!canUseApi) {
-      setMessage('Please sign in again so the app can reconnect your timetable and email sending to the backend.');
+      setMessage('Email sharing needs the backend server. Please start the server, sign in again, then try Email Timetable.');
       return;
     }
 
     setSharing(true);
     try {
+      const synced = await syncLocalItemsToBackend(items);
+      if (synced) {
+        await loadTimetable(false);
+      }
+
       const response = await axios.post(`${API_URL}/timetable/email-summary`);
       setMessage(response.data.message || `Timetable shared to ${userEmail}.`);
       await loadTimetable();

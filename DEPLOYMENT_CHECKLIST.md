@@ -27,7 +27,15 @@ Use this checklist to deploy the full stack:
   - `PORT=5000`
   - `MONGO_URI=<your-atlas-uri>`
   - `JWT_SECRET=<strong-secret>`
-  - `JWT_EXPIRE=7d`
+  - `JWT_EXPIRE=365d`
+  - `CRON_SECRET=<strong-private-cron-secret>`
+  - `SMTP_HOST=smtp.gmail.com`
+  - `SMTP_PORT=587`
+  - `SMTP_SECURE=false`
+  - `SMTP_USER=<sender-gmail-address>`
+  - `SMTP_PASS=<gmail-app-password>`
+  - `EMAIL_FROM="MindCare AI <sender-gmail-address>"`
+  - `REMINDER_LOOKBACK_MINUTES=5`
   - `ML_SERVICE_URL=https://<your-ml-service-domain>`
   - `NODE_ENV=production`
   - `CLIENT_URL=https://<your-vercel-production-domain>`
@@ -36,6 +44,7 @@ Use this checklist to deploy the full stack:
   - `VERCEL_PROJECT_NAME=<your-vercel-project-slug>`
 
 Notes:
+- Vercel Hobby only permits daily cron runs. For automatic timetable reminders, use Vercel Pro, Render/Railway always-on hosting, or the included GitHub Actions workflow in `.github/workflows/timetable-reminders.yml`. The workflow calls `/api/timetable/run-reminders` every 5 minutes with `Authorization: Bearer <CRON_SECRET>`, so set `REMINDER_LOOKBACK_MINUTES=5` on the backend.
 - `CLIENT_URL` handles your main deployed frontend URL.
 - `ALLOW_VERCEL_PREVIEW=true` + `VERCEL_PROJECT_NAME` allows preview deploy URLs like `https://<project>-<preview>.vercel.app`.
 - If you do not want preview URLs, keep `ALLOW_VERCEL_PREVIEW=false`.
